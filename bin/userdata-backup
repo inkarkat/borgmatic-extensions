@@ -16,11 +16,22 @@ HELPTEXT
     printf 'Usage: %q %s\n' "$(basename "$1")" '[--for USER] [BORGMATIC-ACTIONS: init|prune|create|check|extract|list|info ...] [-n|--dry-run] [BORGMATIC-OPTIONS ...] [-?|-h|--help]'
 }
 
-case "$1" in
-    --help|-h|-\?)	shift; printUsage "$0"; exit 0;;
-    --for)		shift; targetUser="${1:?}"; shift; exec sudoWithUnixhome --set-home --user "$targetUser" "${BASH_SOURCE[0]}" "$@";;
-esac
-if [ $# -eq 0 -o "$*" = -n -o "$*" = --dry-run ]; then
+typeset -a borgmaticArgs=()
+typeset -a borgmaticDryRunArg=()
+typeset -a borgmaticActions=()
+while [ $# -ne 0 ]
+do
+    case "$1" in
+	--help|-h|-\?)	shift; printUsage "$0"; exit 0;;
+	--for)		shift; targetUser="${1:?}"; shift; exec sudoWithUnixhome --set-home --user "$targetUser" "${BASH_SOURCE[0]}" "${borgmaticActions[@]}" "${borgmaticDryRunArg[@]}" "${borgmaticArgs[@]}" "$@";;
+	init|prune|create|check|extract|list|info)
+			borgmaticActions+=("$1"); shift;;
+	--dry-run|-n)	borgmaticDryRunArg+=("$1"); shift;;
+	--)		borgmaticArgs+=("$1"); shift; break;;
+	*)		borgmaticArgs+=("$1"); shift;;
+    esac
+done
+if [ $# -eq 0 ] && { [ ${#borgmaticActions[@]} -eq 0 ] || contains 'create' "${borgmaticActions[@]}"; }; then
     # Default output verbosity for backup creation.
     set -- --verbosity 1 --files
 fi
@@ -30,4 +41,4 @@ if [ "$borgmaticConfigTemplateFilespec" -nt "$borgmaticConfigFilespec" ]; then
     shelltemplate -- "$borgmaticConfigTemplateFilespec" "$borgmaticConfigFilespec" || exit 3
 fi
 
-exec borgmatic "$@"
+exec borgmatic "${borgmaticActions[@]}" "${borgmaticDryRunArg[@]}" "${borgmaticArgs[@]}" "$@"

@@ -6,6 +6,7 @@ readonly projectDir="${scriptDir}/.."
 readonly etcDir="${projectDir}/etc/"
 readonly borgmaticConfigTemplateFilespec="${etcDir}/config.yaml.shelltemplate"
 readonly borgmaticConfigFilespec=~/.config/borgmatic/config.yaml
+readonly borgmaticPassphraseFilespec=~/.config/borgmatic/passphrase
 
 printUsage()
 {
@@ -39,6 +40,11 @@ fi
 if [ "$borgmaticConfigTemplateFilespec" -nt "$borgmaticConfigFilespec" ]; then
     touch-p --no-create --no-update -- "$borgmaticConfigFilespec" || exit 3
     shelltemplate -- "$borgmaticConfigTemplateFilespec" "$borgmaticConfigFilespec" || exit 3
+fi
+
+if [ ! -r "$borgmaticPassphraseFilespec" ]; then
+    printf >&2 'ERROR: No borgmatic passphrase set yet. Write to %s\n' "$borgmaticPassphraseFilespec"
+    exit 2
 fi
 
 exec borgmatic "${borgmaticActions[@]}" "${borgmaticDryRunArg[@]}" "${borgmaticArgs[@]}" "$@"

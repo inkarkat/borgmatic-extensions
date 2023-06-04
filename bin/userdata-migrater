@@ -37,6 +37,9 @@ if [ -z "$destination" ]; then
     echo
     printUsage "$0"
     exit 2
+elif [ ! -d "$destination" ] && [[ ! "$destination" =~ : ]]; then
+    # This is a remote migration.
+    destination+=':'
 fi >&2
 
 rsyncWrapper()

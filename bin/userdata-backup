@@ -9,6 +9,8 @@ readonly etcDir="${projectDir}/etc/"
 readonly borgmaticConfigTemplateFilespec="${etcDir}/config.yaml.shelltemplate"
 readonly borgmaticConfigFilespec=~/.config/borgmatic/config.yaml
 readonly borgmaticPassphraseFilespec=~/.config/borgmatic/passphrase
+readonly borgmaticExcludesTemplateFilespec="${etcDir}/excludes"
+readonly borgmaticExcludesFilespec=~/.config/borgmatic/excludes
 
 printUsage()
 {
@@ -46,6 +48,12 @@ fi
 if [ "$borgmaticConfigTemplateFilespec" -nt "$borgmaticConfigFilespec" ]; then
     touch-p --no-create --no-update -- "$borgmaticConfigFilespec" || exit 3
     shelltemplate -- "$borgmaticConfigTemplateFilespec" "$borgmaticConfigFilespec" || exit 3
+fi
+
+if [ ! -e "$borgmaticExcludesFilespec" ]; then
+    addCopy --parents -- "$borgmaticExcludesTemplateFilespec" "$borgmaticExcludesFilespec" \
+	&& printf >&2 'Note: No borgmatic excludes file found. Initialized %s\n' "$borgmaticExcludesFilespec" \
+	|| exit 3
 fi
 
 if [ ! -r "$borgmaticPassphraseFilespec" ]; then

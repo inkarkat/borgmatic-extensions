@@ -57,7 +57,7 @@ if [ ! -e "$borgmaticExcludesFilespec" ]; then
 fi
 
 if [ ! -r "$borgmaticPassphraseFilespec" ]; then
-    printf >&2 'ERROR: No borgmatic passphrase set yet. Write to %s\n' "$borgmaticPassphraseFilespec"
+    printf >&2 'ERROR: No borgmatic passphrase set yet. Create a good encryption phrase and write to %s\n' "$borgmaticPassphraseFilespec"
     exit 2
 fi
 

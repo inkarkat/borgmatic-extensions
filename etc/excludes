@@ -1,4 +1,9 @@
+# files / file extensions
 sh:**/*.pyc
+sh:**/nohup.out
+sh:**/.viminfo*
+
+# undesired directories
 sh:**/.wine
 sh:**/Nextcloud
 sh:**/cloud
@@ -7,8 +12,15 @@ sh:**/.dropbox-dist
 sh:**/Dropbox
 sh:**/Unixhome
 sh:**/public
+
+# metadata
 sh:**/.gvfs
 sh:**/.local/share/gvfs-metadata
+sh:**/.Private
+sh:**/.dbus
+sh:**/.DS_Store
+
+# generic caches
 sh:**/Cache
 sh:**/*Cache
 sh:**/cache
@@ -19,28 +31,17 @@ sh:**/Cache_Data
 sh:**/CacheStorage
 sh:**/Code Cache
 sh:**/GPUCache
-sh:**/.Private
-sh:**/.dbus
-sh:**/.cache
-sh:**/.Trash
-sh:**/.Trash-1*
-sh:**/.local/share/Trash
-sh:**/Trash
+sh:**/.thumbnails
+sh:**/.thumb
+sh:**/Thumbs.db
+
+# application caches
 sh:**/.cddb
 sh:**/.aptitude
 sh:**/.npm
 sh:**/.nvm
 sh:**/.adobe
 sh:**/.macromedia
-sh:**/.xsession-errors
-sh:**/.wayland-errors
-sh:**/.recently-used
-sh:**/.recently-used.xbel
-sh:**/recently-used.xbel
-sh:**/.thumbnails
-sh:**/.thumb
-sh:**/Thumbs.db
-sh:**/.DS_Store
 sh:**/.cups
 sh:**/.venv
 sh:**/.Xauthority
@@ -56,14 +57,6 @@ sh:**/.mozilla/firefox/**/extensions.rdf
 sh:**/.mozilla/firefox/**/extensions.ini
 sh:**/.mozilla/firefox/**/extensions.cache
 sh:**/.mozilla/firefox/**/*.dat
-sh:**/snap/firefox/common/.mozilla/firefox/**/minidumps
-sh:**/snap/firefox/common/.mozilla/firefox/**/.parentlock
-sh:**/snap/firefox/common/.mozilla/firefox/**/*.sqlite*
-sh:**/snap/firefox/common/.mozilla/firefox/**/extensions.rdf
-sh:**/snap/firefox/common/.mozilla/firefox/**/extensions.ini
-sh:**/snap/firefox/common/.mozilla/firefox/**/extensions.cache
-sh:**/snap/firefox/common/.mozilla/firefox/**/*.dat
-sh:**/.thunderbird/**/cache
 sh:**/.keychain
 sh:**/.gnupg/rnd
 sh:**/.gnupg/random_seed
@@ -77,16 +70,12 @@ sh:**/.config/google-chrome/**/*Cache*
 sh:**/snap/chromium/common/.cache
 sh:**/snap/chromium/**/*Cache*
 sh:**/snap/chromium/*/.local/share/
-sh:**/.m2/repository
 sh:**/.local/share/zeitgeist
 sh:**/.local/share/akonadi
-sh:**/.purple/icons
 sh:**/.java/deployment/cache
 sh:**/.icedteaplugin
 sh:**/.icedtea
 sh:**/.gnome2/epiphany/favicon_cache
-sh:**/nohup.out
-sh:**/.viminfo*
 sh:**/.vscode-oss/extensions/*
 sh:**/.vscode/extensions/*
 sh:**/.config/Code - OSS/blob_storage/
@@ -102,3 +91,17 @@ sh:**/.nv/GLCache
 sh:**/.ICAClient/logs
 sh:**/.ICAClient/.tmp
 sh:**/.ICAClient/cache/zlcache
+
+# not worthwhile
+sh:**/.Trash
+sh:**/.Trash-1*
+sh:**/.local/share/Trash
+sh:**/Trash
+sh:**/.xsession-errors
+sh:**/.wayland-errors
+sh:**/.recently-used
+sh:**/.recently-used.xbel
+sh:**/recently-used.xbel
+
+# too large
+sh:**/.m2/repository

@@ -12,7 +12,12 @@
 **/.mysql_history
 **/.lesshst
 **/.gvfs
-/.local/share
+**/.local/share/gvfs-metadata
+**/Cache/
+**/Cache_Data/
+**/CacheStorage/
+**/Code Cache/
+**/GPUCache/
 /.Private
 /.dbus
 **/.cache
@@ -120,12 +125,9 @@
 /.vscode-oss/extensions/*
 /.vscode/extensions/*
 /.config/Code - OSS/blob_storage/
-/.config/Code - OSS/GPUCache/
 /.config/Code - OSS/logs/
 /.config/Code/blob_storage/
-/.config/Code/GPUCache/
 /.config/Code/logs/
-/.config/Microsoft/Microsoft Teams/*Cache
 /.config/VirtualBox/VBoxSVC.log*
 **/.cargo
 **/.rustup

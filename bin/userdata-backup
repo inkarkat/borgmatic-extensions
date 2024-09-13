@@ -59,4 +59,9 @@ if [ ! -r "$borgmaticPassphraseFilespec" ]; then
     exit 2
 fi
 
+if [ ${#borgmaticActions[@]} -eq 0 ] || contains 'create' "${borgmaticActions[@]}"; then
+    # The backup configuration specifies source paths relative to the user's home
+    # directory.
+    cd ~ || exit 3
+fi
 exec borgmatic "${borgmaticActions[@]}" "${borgmaticDryRunArg[@]}" "${borgmaticArgs[@]}" "$@"

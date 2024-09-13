@@ -1,107 +1,111 @@
+# Note: These globs need to be compatible with both borg and rsync, so don't use
+# sh:-style borg patterns (cp. borg help patterns), and use addressing relative
+# to $HOME.
+
 # files / file extensions
-sh:**/*.pyc
-sh:**/nohup.out
-sh:**/.viminfo*
+*.pyc
+nohup.out
+.viminfo*
 
 # undesired directories
-sh:**/.wine
-sh:**/Nextcloud
-sh:**/cloud
-sh:**/.dropbox
-sh:**/.dropbox-dist
-sh:**/Dropbox
-sh:**/Unixhome
-sh:**/public
+/.wine
+/Nextcloud
+/cloud
+/.dropbox
+/.dropbox-dist
+/Dropbox
+/Unixhome
+/public
 
 # metadata
-sh:**/.gvfs
-sh:**/.local/share/gvfs-metadata
-sh:**/.Private
-sh:**/.dbus
-sh:**/.DS_Store
+/.gvfs
+/.local/share/gvfs-metadata
+/.Private
+/.dbus
+.DS_Store
 
 # generic caches
-sh:**/Cache
-sh:**/*Cache
-sh:**/cache
-sh:**/cache?
-sh:**/caches
-sh:**/.cache
-sh:**/Cache_Data
-sh:**/CacheStorage
-sh:**/Code Cache
-sh:**/GPUCache
-sh:**/.thumbnails
-sh:**/.thumb
-sh:**/Thumbs.db
+Cache/
+*Cache/
+cache/
+cache?/
+caches/
+.cache/
+Cache_Data/
+CacheStorage/
+Code Cache/
+GPUCache/
+.thumbnails
+.thumb
+Thumbs.db
 
 # application caches
-sh:**/.cddb
-sh:**/.aptitude
-sh:**/.npm
-sh:**/.nvm
-sh:**/.adobe
-sh:**/.macromedia
-sh:**/.cups
-sh:**/.venv
-sh:**/.Xauthority
-sh:**/.ICEauthority
-sh:**/.gksu.lock
-sh:**/.pulse
-sh:**/.pulse-cookie
-sh:**/.mozilla/firefox/**/cache
-sh:**/.mozilla/firefox/**/minidumps
-sh:**/.mozilla/firefox/**/.parentlock
-sh:**/.mozilla/firefox/**/*.sqlite*
-sh:**/.mozilla/firefox/**/extensions.rdf
-sh:**/.mozilla/firefox/**/extensions.ini
-sh:**/.mozilla/firefox/**/extensions.cache
-sh:**/.mozilla/firefox/**/*.dat
-sh:**/.keychain
-sh:**/.gnupg/rnd
-sh:**/.gnupg/random_seed
-sh:**/.gnupg/.#*
-sh:**/.gnupg/*.lock
-sh:**/.gnupg/gpg-agent-info-*
-sh:**/.googleearth/Temp
-sh:**/.googleearth/Cache
-sh:**/.config/skypeforlinux
-sh:**/.config/google-chrome/**/*Cache*
-sh:**/snap/chromium/common/.cache
-sh:**/snap/chromium/**/*Cache*
-sh:**/snap/chromium/*/.local/share/
-sh:**/.local/share/zeitgeist
-sh:**/.local/share/akonadi
-sh:**/.java/deployment/cache
-sh:**/.icedteaplugin
-sh:**/.icedtea
-sh:**/.gnome2/epiphany/favicon_cache
-sh:**/.vscode-oss/extensions/*
-sh:**/.vscode/extensions/*
-sh:**/.config/Code - OSS/blob_storage/
-sh:**/.config/Code - OSS/logs/
-sh:**/.config/Code/blob_storage/
-sh:**/.config/Code/logs/
-sh:**/.cargo
-sh:**/.rustup
-sh:**/.kerl
-sh:**/go/pkg/mod/cache
-sh:**/.ccache/
-sh:**/.nv/GLCache
-sh:**/.ICAClient/logs
-sh:**/.ICAClient/.tmp
-sh:**/.ICAClient/cache/zlcache
+/.cddb
+/.aptitude
+/.npm
+/.nvm
+/.adobe
+/.macromedia
+/.cups
+/.venv
+/.Xauthority
+/.ICEauthority
+/.gksu.lock
+/.pulse
+/.pulse-cookie
+/.mozilla/firefox/**/cache
+/.mozilla/firefox/**/minidumps
+/.mozilla/firefox/**/.parentlock
+/.mozilla/firefox/**/*.sqlite*
+/.mozilla/firefox/**/extensions.rdf
+/.mozilla/firefox/**/extensions.ini
+/.mozilla/firefox/**/extensions.cache
+/.mozilla/firefox/**/*.dat
+/.keychain
+/.gnupg/rnd
+/.gnupg/random_seed
+/.gnupg/.#*
+/.gnupg/*.lock
+/.gnupg/gpg-agent-info-*
+/.googleearth/Temp
+/.googleearth/Cache
+/.config/skypeforlinux
+/.config/google-chrome/**/*Cache*
+/snap/chromium/common/.cache
+/snap/chromium/**/*Cache*
+/snap/chromium/*/.local/share/
+/.local/share/zeitgeist
+/.local/share/akonadi
+/.java/deployment/cache
+/.icedteaplugin
+/.icedtea
+/.gnome2/epiphany/favicon_cache
+/.vscode-oss/extensions/*
+/.vscode/extensions/*
+/.config/Code - OSS/blob_storage/
+/.config/Code - OSS/logs/
+/.config/Code/blob_storage/
+/.config/Code/logs/
+/.cargo
+/.rustup
+/.kerl
+/go/pkg/mod/cache
+/.ccache/
+/.nv/GLCache
+/.ICAClient/logs
+/.ICAClient/.tmp
+/.ICAClient/cache/zlcache
 
 # not worthwhile
-sh:**/.Trash
-sh:**/.Trash-1*
-sh:**/.local/share/Trash
-sh:**/Trash
-sh:**/.xsession-errors
-sh:**/.wayland-errors
-sh:**/.recently-used
-sh:**/.recently-used.xbel
-sh:**/recently-used.xbel
+/.Trash
+/.Trash-*
+/.local/share/Trash
+Trash
+/.xsession-errors
+/.wayland-errors
+/.recently-used
+/.recently-used.xbel
+/recently-used.xbel
 
 # too large
-sh:**/.m2/repository
+/.m2/repository

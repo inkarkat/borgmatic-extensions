@@ -4,7 +4,7 @@
 location:
     # List of source directories to backup (required). Globs and tildes are expanded.
     source_directories:
-        - ${HOME:?}
+        - .
 
     # Paths to local or remote repositories (required). Tildes are expanded. Multiple
     # repositories are backed up to in sequence. See ssh_command for SSH options like
@@ -64,9 +64,11 @@ location:
 
     # Any paths matching these patterns are excluded from backups. Globs and tildes
     # are expanded. See the output of "borg help patterns" for more details.
-    #exclude_patterns:
+    exclude_patterns:
         # - ~/*/.cache
         # - /etc/ssl
+        - './lost+found'
+        - './.Trash-*'
 
     # Read exclude patterns from one or more separate named files, one pattern per
     # line. See the output of "borg help patterns" for more details.

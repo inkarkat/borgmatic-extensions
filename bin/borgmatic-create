@@ -1,0 +1,91 @@
+#!/bin/bash
+set -o pipefail
+
+: ${BORGMATIC_CREATE_SOURCE_DIRSPEC=}
+: ${BORGMATIC_CREATE_LOG_DIRSPEC:="/var/log/${USER}/borgmatic"}
+: ${BORGMATIC_CREATE_LOG_PREFIX=}
+: ${BORGMATIC_CREATE_EXECUTIONMARKER_BASEDIR=}
+: ${BORGMATIC_SUBJECT=}
+: ${BORGMATIC_WHAT=}
+: ${BORGMATIC_OFFER_FRESH_BACKUP_INTERVAL=}
+
+if [ -n "$BORGMATIC_SUBJECT" ]; then
+    marker()
+    {
+	executionMarker ${BORGMATIC_CREATE_EXECUTIONMARKER_BASEDIR:+--basedir "$BORGMATIC_CREATE_EXECUTIONMARKER_BASEDIR"} --group "${BORGMATIC_SUBJECT:?}-backup" "$@"
+    }
+
+    notify()
+    {
+	userNotify --title "${BORGMATIC_WHAT:-${BORGMATIC_SUBJECT:?}} backup" "$@"
+    }
+
+    if [ -n "$BORGMATIC_OFFER_FRESH_BACKUP_INTERVAL" ]; then
+	offer()
+	{
+	    local lastBackupTimestamp
+	    if lastBackupTimestamp="$(! marker --query lastGoodBackup --within "$BORGMATIC_OFFER_FRESH_BACKUP_INTERVAL" --get-time '' --get-diff '(%R)' | joinBy - ' ')"; then
+		local oldBackupMessage="Last backup of ${BORGMATIC_WHAT:-${BORGMATIC_SUBJECT:?}} ${lastBackupTimestamp:+was on }${lastBackupTimestamp:-has never been done}"
+		if ! haveHomeNetwork; then
+		    notify --timeout 10 -- "${oldBackupMessage}; I recommend to backup the next time you're connected to the home network again."
+		elif ! exists borgmatic; then
+		    notify --timeout 10 -- "${oldBackupMessage}, but this system doesn't have the backup software installed; I recommend to backup the next time you're using another system in the home network."
+		elif userBinaryChoice --question "${oldBackupMessage}; backup now?" --yes-no; then
+		    borgmatic-create "$@"
+		else
+		    return 4
+		fi
+	    fi
+	}
+    else
+	offer()
+	{
+	    echo >&2 'ERROR: Cannot offer backup; no $BORGMATIC_OFFER_FRESH_BACKUP_INTERVAL set.'
+	    exit 3
+	}
+    fi
+else
+    marker() { :; }
+    notify() { :; }
+    offer()
+    {
+	echo >&2 'ERROR: Cannot offer backup; no $BORGMATIC_SUBJECT set.'
+	exit 3
+    }
+fi
+
+if [ "$1" = --offer ]; then
+    shift
+    offer "$@"
+    exit $?
+fi
+
+# Log the full verbose backup creation output into a timestamped log file.
+[ -d "$BORGMATIC_CREATE_LOG_DIRSPEC" ] || mkdir --parents -- "$BORGMATIC_CREATE_LOG_DIRSPEC" || { printf >&2 'ERROR: Could not initialize log directory at %s\n' "$BORGMATIC_CREATE_LOG_DIRSPEC"; exit 3; }
+# Disable color output for logging and sampleLines.
+set -- --no-color "$@"
+
+if [ -n "$BORGMATIC_CREATE_SOURCE_DIRSPEC" ]; then
+    # With this setting, the backup configuration can specify source paths relative
+    # to the configured directory. We need to be in that directory for that to work.
+    cd "$BORGMATIC_CREATE_SOURCE_DIRSPEC" || exit 3
+fi
+
+marker --update lastBackup
+
+# Enable output verbosity for backup creation to list each backed up file.
+logFilePrefix="${BORGMATIC_CREATE_LOG_PREFIX:-$BORGMATIC_SUBJECT}"
+if borgmatic create --verbosity 1 --files "$@" \
+    | borgmatic-creationLogger "${BORGMATIC_CREATE_LOG_DIRSPEC}/${logFilePrefix}${logFilePrefix:+-}"
+then
+    marker --update lastGoodBackup --increment-context
+
+    currentBackupDuration="$(marker --diff lastBackup --format '%P')"
+    notify --timeout 10 -- "Backup finished${currentBackupDuration:+; took }${currentBackupDuration}."
+    exit 0
+else
+    status=$?
+    currentBackupDuration="$(marker --diff lastBackup --format '%P')"
+    notify -- "Backup failed${currentBackupDuration:+ after }${currentBackupDuration}."
+    exit $status
+fi

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec borgmatic-create --offer "$@"  # Delegate to borgmatic-create as it has all the marker handling.

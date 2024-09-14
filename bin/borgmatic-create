@@ -1,0 +1,21 @@
+#!/bin/bash
+set -o pipefail
+
+: ${BORGMATIC_CREATE_SOURCE_DIRSPEC=}
+: ${BORGMATIC_SUBJECT=}
+
+# Log the full verbose backup creation output into a timestamped log file.
+readonly LOG_DIRSPEC="/var/log/${USER}/borgmatic"
+[ -d "$LOG_DIRSPEC" ] || mkdir --parents -- "$LOG_DIRSPEC" || { printf >&2 'ERROR: Could not initialize log directory at %s\n' "$LOG_DIRSPEC"; exit 3; }
+# Disable color output for logging and sampleLines.
+set -- --no-color "$@"
+
+if [ -n "$BORGMATIC_CREATE_SOURCE_DIRSPEC" ]; then
+    # With this setting, the backup configuration can specify source paths relative
+    # to the configured directory. We need to be in that directory for that to work.
+    cd "$BORGMATIC_CREATE_SOURCE_DIRSPEC" || exit 3
+fi
+
+# Default output verbosity for backup creation.
+eval 'borgmatic create --verbosity 1 --files "$@"' \
+    | borgmatic-creationLogger "${LOG_DIRSPEC}/${BORGMATIC_SUBJECT}${BORGMATIC_SUBJECT:+-}"

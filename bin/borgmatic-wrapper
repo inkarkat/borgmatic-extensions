@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Allow definition of Borgmatic aliases by putting an executable "borgmatic-foo"
+# somewhere in the PATH.
+
+typeset borgmaticAlias="borgmatic-$1"
+if [ $# -eq 0 ]; then
+    exec "${BASH_SOURCE[0]}" create
+elif type -t "$borgmaticAlias" >/dev/null; then
+    shift; eval $borgmaticAlias '"$@"'
+else
+    command borgmatic "$@"
+fi

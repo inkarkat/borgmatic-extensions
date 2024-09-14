@@ -2,7 +2,24 @@
 set -o pipefail
 
 : ${BORGMATIC_CREATE_SOURCE_DIRSPEC=}
+: ${BORGMATIC_CREATE_EXECUTIONMARKER_BASEDIR=}
 : ${BORGMATIC_SUBJECT=}
+: ${BORGMATIC_WHAT=}
+
+if [ -n "$BORGMATIC_SUBJECT" ]; then
+    marker()
+    {
+	executionMarker ${BORGMATIC_CREATE_EXECUTIONMARKER_BASEDIR:+--basedir "$BORGMATIC_CREATE_EXECUTIONMARKER_BASEDIR"} --group "${BORGMATIC_SUBJECT:?}-backup" "$@"
+    }
+
+    notify()
+    {
+	userNotify --title "${BORGMATIC_WHAT:-${BORGMATIC_SUBJECT:?}} backup" "$@"
+    }
+else
+    marker() { :; }
+    notify() { :; }
+fi
 
 # Log the full verbose backup creation output into a timestamped log file.
 readonly LOG_DIRSPEC="/var/log/${USER}/borgmatic"
@@ -16,6 +33,20 @@ if [ -n "$BORGMATIC_CREATE_SOURCE_DIRSPEC" ]; then
     cd "$BORGMATIC_CREATE_SOURCE_DIRSPEC" || exit 3
 fi
 
-# Default output verbosity for backup creation.
-eval 'borgmatic create --verbosity 1 --files "$@"' \
+marker --update lastBackup
+
+# Enable output verbosity for backup creation to list each backed up file.
+if borgmatic create --verbosity 1 --files "$@" \
     | borgmatic-creationLogger "${LOG_DIRSPEC}/${BORGMATIC_SUBJECT}${BORGMATIC_SUBJECT:+-}"
+then
+    marker --update lastGoodBackup --increment-context
+
+    currentBackupDuration="$(marker --diff lastBackup --format '%P')"
+    notify --timeout 10 -- "Backup finished${currentBackupDuration:+; took }${currentBackupDuration}."
+    exit 0
+else
+    status=$?
+    currentBackupDuration="$(marker --diff lastBackup --format '%P')"
+    notify -- "Backup failed${currentBackupDuration:+ after }${currentBackupDuration}."
+    exit $status
+fi

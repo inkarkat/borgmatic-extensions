@@ -1,0 +1,26 @@
+#!/bin/bash
+
+printUsage()
+{
+    cat <<HELPTEXT
+Log and show samples of the verbose output of a borgmatic backup run.
+HELPTEXT
+    echo
+    printf 'Usage: %q %s\n' "$(basename "$1")" 'LOG-FILESPEC [-?|-h|--help]'
+}
+
+case "$1" in
+    --help|-h|-\?)	shift; printUsage "$0"; exit 0;;
+esac
+
+logFilespec="${1:?}"; shift
+
+tee "$logFilespec" \
+    | sampleLines --inline-or-none \
+	--reset-on ': Pruning archives$' \
+	--reset-on ': Creating archive$' \
+	--reset-on ': Running consistency checks$' \
+	--reset-on '^Remote: Storage quota:' \
+	--reset-on '^Archive consistency check complete' \
+	--keep-reset \
+	--count file --match '^[A-Z] '

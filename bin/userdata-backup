@@ -38,8 +38,9 @@ do
 done
 if [ $# -eq 0 ]; then
     if [ ${#borgmaticActions[@]} -eq 0 ] || contains 'create' "${borgmaticActions[@]}"; then
-	# Default output verbosity for backup creation.
-	set -- --verbosity 1 --files
+	# Default output verbosity for backup creation; disable color output for logging
+	# and sampleLines.
+	set -- --no-color --verbosity 1 --files
     elif contains 'init' "${borgmaticActions[@]}"; then
 	set -- --encryption repokey --storage-quota "$USERDATABACKUP_DEFAULT_STORAGE_QUOTA"
     fi
@@ -59,9 +60,16 @@ if [ ! -r "$borgmaticPassphraseFilespec" ]; then
     exit 2
 fi
 
+EXEC=exec
 if [ ${#borgmaticActions[@]} -eq 0 ] || contains 'create' "${borgmaticActions[@]}"; then
     # The backup configuration specifies source paths relative to the user's home
     # directory.
     cd ~ || exit 3
+
+    readonly LOG_DIRSPEC="/var/log/${USER}/borgmatic"
+    [ -d "$LOG_DIRSPEC" ] || mkdir --parents -- "$LOG_DIRSPEC" || { printf >&2 'ERROR: Could not initialize log directory at %s!\n' "$LOG_DIRSPEC"; exit 3; }
+    typeset -a postProcessor=(borgmatic-creationLogger "${LOG_DIRSPEC}/userdata-")
+    EXEC=''
 fi
-exec borgmatic "${borgmaticActions[@]}" "${borgmaticDryRunArg[@]}" "${borgmaticArgs[@]}" "$@"
+eval '$EXEC borgmatic "${borgmaticActions[@]}" "${borgmaticDryRunArg[@]}" "${borgmaticArgs[@]}" "$@"' \
+    "${postProcessor:+|}" '"${postProcessor[@]}"'

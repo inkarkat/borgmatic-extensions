@@ -1,0 +1,10 @@
+#!/bin/bash
+
+exec sampleLines --inline-or-none \
+    --reset-on ': Pruning archives$' \
+    --reset-on ': Creating archive$' \
+    --reset-on ': Running consistency checks$' \
+    --reset-on '^Remote: Storage quota:' \
+    --reset-on '^Archive consistency check complete' \
+    --keep-reset \
+    --count file --match '^[A-Z] '

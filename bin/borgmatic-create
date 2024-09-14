@@ -5,6 +5,7 @@ set -o pipefail
 : ${BORGMATIC_CREATE_EXECUTIONMARKER_BASEDIR=}
 : ${BORGMATIC_SUBJECT=}
 : ${BORGMATIC_WHAT=}
+: ${BORGMATIC_OFFER_FRESH_BACKUP_INTERVAL=}
 
 if [ -n "$BORGMATIC_SUBJECT" ]; then
     marker()
@@ -16,9 +17,45 @@ if [ -n "$BORGMATIC_SUBJECT" ]; then
     {
 	userNotify --title "${BORGMATIC_WHAT:-${BORGMATIC_SUBJECT:?}} backup" "$@"
     }
+
+    if [ -n "$BORGMATIC_OFFER_FRESH_BACKUP_INTERVAL" ]; then
+	offer()
+	{
+	    local lastBackupTimestamp
+	    if lastBackupTimestamp="$(! marker --query lastGoodBackup --within "$BORGMATIC_OFFER_FRESH_BACKUP_INTERVAL" --get-time '' --get-diff '(%R)' | joinBy - ' ')"; then
+		local oldBackupMessage="Last backup of ${BORGMATIC_WHAT:-${BORGMATIC_SUBJECT:?}} ${lastBackupTimestamp:+was on }${lastBackupTimestamp:-has never been done}"
+		if ! haveHomeNetwork; then
+		    notify --timeout 10 -- "${oldBackupMessage}; I recommend to backup the next time you're connected to the home network again."
+		elif ! exists borgmatic; then
+		    notify --timeout 10 -- "${oldBackupMessage}, but this system doesn't have the backup software installed; I recommend to backup the next time you're using another system in the home network."
+		elif userBinaryChoice --question "${oldBackupMessage}; backup now?" --yes-no; then
+		    borgmatic-create "$@"
+		else
+		    return 4
+		fi
+	    fi
+	}
+    else
+	offer()
+	{
+	    echo >&2 'ERROR: Cannot offer backup; no $BORGMATIC_OFFER_FRESH_BACKUP_INTERVAL set.'
+	    exit 3
+	}
+    fi
 else
     marker() { :; }
     notify() { :; }
+    offer()
+    {
+	echo >&2 'ERROR: Cannot offer backup; no $BORGMATIC_SUBJECT set.'
+	exit 3
+    }
+fi
+
+if [ "$1" = --offer ]; then
+    shift
+    offer "$@"
+    exit $?
 fi
 
 # Log the full verbose backup creation output into a timestamped log file.

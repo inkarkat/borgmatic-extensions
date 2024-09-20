@@ -24,4 +24,5 @@ tee "$logFilespec" \
 	--reset-on '^Remote: Storage quota:' \
 	--reset-on '^Archive consistency check complete' \
 	--keep-reset \
-	--count file --match '^[A-Z] '
+	--count file --match '^[A-Z] ' \
+	--transform-exec truncatePath --width $((${COLUMNS:-80} - 14)) \;   # Account for the " (file 42)" suffix.

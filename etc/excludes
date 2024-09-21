@@ -8,14 +8,15 @@ nohup.out
 .viminfo*
 
 # undesired directories
-/.wine
-/Nextcloud
-/cloud
 /.dropbox
 /.dropbox-dist
+/.wine
 /Dropbox
+/Nextcloud
 /Unixhome
+/cloud
 /public
+/tmp
 
 # metadata
 /.gvfs

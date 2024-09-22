@@ -67,13 +67,13 @@ location:
     exclude_patterns:
         # - ~/*/.cache
         # - /etc/ssl
-        - './lost+found'
-        - './.Trash-*'
+        - 'lost+found'
+        - '.Trash-*'
 
     # Read exclude patterns from one or more separate named files, one pattern per
     # line. See the output of "borg help patterns" for more details.
     exclude_from:
-        - ${HOME}/.config/borgmatic/excludes
+        - ${HOME}/.config/borgmatic/borg-excludes
 
     # Exclude directories that contain a CACHEDIR.TAG file. See
     # http://www.brynosaurus.com/cachedir/spec.html for details. Defaults to false.

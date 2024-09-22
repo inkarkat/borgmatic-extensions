@@ -10,8 +10,9 @@ readonly etcDir="${projectDir}/etc"
 readonly borgmaticConfigTemplateFilespec="${etcDir}/config.yaml.shelltemplate"
 readonly borgmaticConfigFilespec=~/.config/borgmatic/config.yaml
 readonly borgmaticPassphraseFilespec=~/.config/borgmatic/passphrase
-readonly borgmaticExcludesTemplateFilespec="${etcDir}/excludes"
-readonly borgmaticExcludesFilespec=~/.config/borgmatic/excludes
+readonly excludesTemplateFilespec="${etcDir}/excludes"
+readonly excludesFilespec=~/.config/borgmatic/excludes
+readonly borgExcludesFilespec=~/.config/borgmatic/borg-excludes
 
 printUsage()
 {
@@ -46,8 +47,17 @@ if [ "$borgmaticConfigTemplateFilespec" -nt "$borgmaticConfigFilespec" ]; then
     shelltemplate -- "$borgmaticConfigTemplateFilespec" "$borgmaticConfigFilespec" || exit 3
 fi
 
-if [ "$borgmaticExcludesTemplateFilespec" -nt "$borgmaticExcludesFilespec" ]; then
-    addCopy --what 'borgmatic excludes config' --offer-update-or-touch --parents -- "$borgmaticExcludesTemplateFilespec" "$borgmaticExcludesFilespec"
+if [ "$excludesTemplateFilespec" -nt "$excludesFilespec" ]; then
+    addCopy --what 'borgmatic excludes config' --offer-update-or-touch --parents -- "$excludesTemplateFilespec" "$excludesFilespec"
+fi
+
+if [ "$excludesFilespec" -nt "$borgExcludesFilespec" ]; then
+    # XXX: Convert the rsync-style excludes to borg-style excludes.
+    # - filenames are converted to any path-depth matches by prepending "*/" (unless
+    #   they already start with a * glob)
+    # - /relative addressing needs to be converted into an any path-depth match by
+    #   prepending "*" _and_ (to also match in the base directory) have the "/" removed.
+    sed -e 's@^[^/#*].*@&\n*/&@' -e 's@^/@@' -- "$excludesFilespec" > "$borgExcludesFilespec" || exit 3
 fi
 
 if [ ! -r "$borgmaticPassphraseFilespec" ]; then

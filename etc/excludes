@@ -1,6 +1,9 @@
 # Note: These globs need to be compatible with both borg and rsync, so don't use
 # sh:-style borg patterns (cp. borg help patterns), and use addressing relative
-# to $HOME.
+# to $HOME; unfortunately, borg has funny matching rules, and none of the many
+# variants are as good as rsync's, offering both matches anchored at the start
+# and for individual filenames.
+# userdata-backup converts the syntax into a format suitable for borg[matic]
 
 # files / file extensions
 *.pyc

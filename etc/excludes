@@ -7,8 +7,6 @@
 
 # files / file extensions
 *.pyc
-nohup.out
-.viminfo*
 
 # undesired directories
 /.dropbox

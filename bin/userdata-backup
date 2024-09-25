@@ -42,6 +42,12 @@ if [ $# -eq 0 ] && contains 'init' "${borgmaticActions[@]}"; then
     set -- --encryption repokey --storage-quota "$USERDATABACKUP_DEFAULT_STORAGE_QUOTA"
 fi
 
+if [ ! -r "$borgmaticConfigFilespec" -o ! -r "$borgmaticPassphraseFilespec" ] && contains 'offer' "${borgmaticActions[@]}"; then
+    # Do not initialize the borgmatic configuration if we are just offering a
+    # backup. The first initiation has to be done explicitly by the user.
+    return 99
+fi
+
 if [ "$borgmaticConfigTemplateFilespec" -nt "$borgmaticConfigFilespec" ]; then
     touch-p --no-create --no-update -- "$borgmaticConfigFilespec" || exit 3
     shelltemplate -- "$borgmaticConfigTemplateFilespec" "$borgmaticConfigFilespec" || exit 3

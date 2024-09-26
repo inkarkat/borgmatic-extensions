@@ -58,11 +58,13 @@ if [ "$excludesTemplateFilespec" -nt "$excludesFilespec" ]; then
 fi
 
 if [ "$excludesFilespec" -nt "$borgExcludesFilespec" ]; then
-    # XXX: Convert the rsync-style excludes to borg-style excludes.
+    # XXX: Convert the rsync-style excludes to borg style.
     # - filenames are converted to any path-depth matches by prepending "*/" (unless
-    #   they already start with a * glob)
-    # - /relative addressing needs to be converted into an any path-depth match by
-    #   prepending "*" _and_ (to also match in the base directory) have the "/" removed.
+    #   they already start with a * glob) _and_ (to also match in the base
+    #   directory) are kept as is, too.
+    # - /relative addressing needs to be converted into a full path match (that's
+    #   anchored to the backup root by using "." as the source directory) by
+    #   removing the "/".
     sed -e 's@^[^/#*].*@&\n*/&@' -e 's@^/@@' -- "$excludesFilespec" > "$borgExcludesFilespec" || exit 3
 fi
 

@@ -68,9 +68,16 @@ if [ "$excludesFilespec" -nt "$borgExcludesFilespec" ]; then
 fi
 
 if [ ! -r "$borgmaticPassphraseFilespec" ]; then
-    printf >&2 'ERROR: No borgmatic passphrase set yet. Create a good encryption phrase and write to %s\n' "$borgmaticPassphraseFilespec"
+    printf 'ERROR: No borgmatic passphrase set yet. Create a good encryption phrase and write to %s\n' "$borgmaticPassphraseFilespec"
+    echo
+    hostname="$(readableHostname --fallback "${USER-system}")"
+    cat <<EOF
+On the backup server, create the backup location via:
+$ sudo install --owner backup --group users --mode 777 --directory /volume1/backup/${hostname}
+$ sudo ln -s /volume1/backup/${hostname} /var/services/homes/backup/${hostname}
+EOF
     exit 2
-fi
+fi >&2
 
 BORGMATIC_CREATE_SOURCE_DIRSPEC="$HOME" \
 BORGMATIC_SUBJECT='userdata' \

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+: ${BORGMATIC_CREATE_LOG_DIRSPEC:="/var/log/${USER}/borgmatic"}
+: ${USERDATABACKUP_SUBJECT=userdata}
 : ${USERDATABACKUP_DEFAULT_STORAGE_QUOTA=512G}
 : ${USERDATABACKUP_FRESH_BACKUP_INTERVAL=14d}
 
@@ -13,6 +15,7 @@ readonly borgmaticPassphraseFilespec=~/.config/borgmatic/passphrase
 readonly excludesTemplateFilespec="${etcDir}/excludes"
 readonly excludesFilespec=~/.config/borgmatic/excludes
 readonly borgExcludesFilespec=~/.config/borgmatic/borg-excludes
+readonly userdataBackupLogFilespecGlob="${BORGMATIC_CREATE_LOG_DIRSPEC}/${USERDATABACKUP_SUBJECT}-*"
 
 printUsage()
 {
@@ -21,6 +24,18 @@ Create a backup / execute backup action for all user data [of the passed USER].
 HELPTEXT
     echo
     printf 'Usage: %q %s\n' "$(basename "$1")" '[--for USER] [BORGMATIC-ACTIONS: init|prune|create|check|extract|list|info|offer ...] [-n|--dry-run] [BORGMATIC-OPTIONS ...] [-?|-h|--help]'
+}
+
+abortWithInitInstructions()
+{
+    local hostname="$(readableHostname --fallback "${USER-system}")"
+    cat <<EOF
+On the backup server, create the backup location via:
+$ sudo install --owner backup --group users --mode 777 --directory /volume1/backup/${hostname}
+$ sudo ln -s /volume1/backup/${hostname} /var/services/homes/backup/${hostname}
+Then, initialize the repository via \$ $(basename -- "${BASH_SOURCE[0]}") init
+EOF
+    exit 2
 }
 
 typeset -a borgmaticArgs=()
@@ -42,7 +57,9 @@ if [ $# -eq 0 ] && contains 'init' "${borgmaticActions[@]}"; then
     set -- --encryption repokey --storage-quota "$USERDATABACKUP_DEFAULT_STORAGE_QUOTA"
 fi
 
-if [ ! -r "$borgmaticConfigFilespec" -o ! -r "$borgmaticPassphraseFilespec" ] && contains 'offer' "${borgmaticActions[@]}"; then
+if contains 'offer' "${borgmaticActions[@]}" \
+    && { [ ! -r "$borgmaticConfigFilespec" ] || [ ! -r "$borgmaticPassphraseFilespec" ] || ! hasglobmatch "$userdataBackupLogFilespecGlob"; } \
+then
     # Do not initialize the borgmatic configuration if we are just offering a
     # backup. The first initiation has to be done explicitly by the user.
     return 99
@@ -70,16 +87,14 @@ fi
 if [ ! -r "$borgmaticPassphraseFilespec" ]; then
     printf 'ERROR: No borgmatic passphrase set yet. Create a good encryption phrase and write to %s\n' "$borgmaticPassphraseFilespec"
     echo
-    hostname="$(readableHostname --fallback "${USER-system}")"
-    cat <<EOF
-On the backup server, create the backup location via:
-$ sudo install --owner backup --group users --mode 777 --directory /volume1/backup/${hostname}
-$ sudo ln -s /volume1/backup/${hostname} /var/services/homes/backup/${hostname}
-EOF
-    exit 2
+    abortWithInitInstructions
 fi >&2
 
+if ! contains 'init' "${borgmaticActions[@]}" && ! hasglobmatch "$userdataBackupLogFilespecGlob"; then
+    abortWithInitInstructions
+fi
+
 BORGMATIC_CREATE_SOURCE_DIRSPEC="$HOME" \
-BORGMATIC_SUBJECT='userdata' \
+BORGMATIC_SUBJECT="${USERDATABACKUP_SUBJECT:?}" \
 BORGMATIC_OFFER_FRESH_BACKUP_INTERVAL="$USERDATABACKUP_FRESH_BACKUP_INTERVAL" \
     exec borgmatic-wrapper "${borgmaticActions[@]}" "${borgmaticDryRunArg[@]}" "${borgmaticArgs[@]}" "$@"

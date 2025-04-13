@@ -62,7 +62,7 @@ if contains 'offer' "${borgmaticActions[@]}" \
 then
     # Do not initialize the borgmatic configuration if we are just offering a
     # backup. The first initiation has to be done explicitly by the user.
-    return 99
+    exit 99
 fi
 
 if [ "$borgmaticConfigTemplateFilespec" -nt "$borgmaticConfigFilespec" ]; then

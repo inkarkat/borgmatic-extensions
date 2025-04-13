@@ -1,0 +1,17 @@
+#!/bin/bash
+set -o pipefail
+
+: ${BORGMATIC_INIT_LOG_PREFIX=}
+: ${BORGMATIC_LOG_DIRSPEC:="/var/log/${USER}/borgmatic"}
+: ${BORGMATIC_SUBJECT=}
+
+# Log the full verbose backup initialization output into a timestamped log file.
+[ -d "$BORGMATIC_LOG_DIRSPEC" ] || mkdir --parents -- "$BORGMATIC_LOG_DIRSPEC" || { printf >&2 'ERROR: Could not initialize log directory at %s\n' "$BORGMATIC_LOG_DIRSPEC"; exit 3; }
+
+# Disable color output for logging.
+set -- --no-color "$@"
+
+logFilePrefix="${BORGMATIC_INIT_LOG_PREFIX:-$BORGMATIC_SUBJECT}"
+logFilespec="$(timestamp --short --prefix "${BORGMATIC_LOG_DIRSPEC}/${logFilePrefix}${logFilePrefix:+-}")"
+borgmatic init --verbosity 1 "$@" \
+    | tee "$logFilespec"

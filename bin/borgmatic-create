@@ -2,9 +2,9 @@
 set -o pipefail
 
 : ${BORGMATIC_CREATE_SOURCE_DIRSPEC=}
-: ${BORGMATIC_CREATE_LOG_DIRSPEC:="/var/log/${USER}/borgmatic"}
 : ${BORGMATIC_CREATE_LOG_PREFIX=}
 : ${BORGMATIC_CREATE_EXECUTIONMARKER_BASEDIR=}
+: ${BORGMATIC_LOG_DIRSPEC:="/var/log/${USER}/borgmatic"}
 : ${BORGMATIC_SUBJECT=}
 : ${BORGMATIC_WHAT=}
 : ${BORGMATIC_OFFER_FRESH_BACKUP_INTERVAL=}
@@ -61,7 +61,7 @@ if [ "$1" = --offer ]; then
 fi
 
 # Log the full verbose backup creation output into a timestamped log file.
-[ -d "$BORGMATIC_CREATE_LOG_DIRSPEC" ] || mkdir --parents -- "$BORGMATIC_CREATE_LOG_DIRSPEC" || { printf >&2 'ERROR: Could not initialize log directory at %s\n' "$BORGMATIC_CREATE_LOG_DIRSPEC"; exit 3; }
+[ -d "$BORGMATIC_LOG_DIRSPEC" ] || mkdir --parents -- "$BORGMATIC_LOG_DIRSPEC" || { printf >&2 'ERROR: Could not initialize log directory at %s\n' "$BORGMATIC_LOG_DIRSPEC"; exit 3; }
 # Disable color output for logging and sampleLines.
 set -- --no-color "$@"
 
@@ -76,7 +76,7 @@ marker --update lastBackup
 # Enable output verbosity for backup creation to list each backed up file.
 logFilePrefix="${BORGMATIC_CREATE_LOG_PREFIX:-$BORGMATIC_SUBJECT}"
 if borgmatic create --verbosity 1 --files "$@" \
-    | borgmatic-creationLogger "${BORGMATIC_CREATE_LOG_DIRSPEC}/${logFilePrefix}${logFilePrefix:+-}"
+    | borgmatic-creationLogger "${BORGMATIC_LOG_DIRSPEC}/${logFilePrefix}${logFilePrefix:+-}"
 then
     marker --update lastGoodBackup --increment-context
 

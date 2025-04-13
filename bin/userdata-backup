@@ -1,6 +1,6 @@
 #!/bin/bash
 
-: ${BORGMATIC_CREATE_LOG_DIRSPEC:="/var/log/${USER}/borgmatic"}
+: ${BORGMATIC_LOG_DIRSPEC:="/var/log/${USER}/borgmatic"}
 : ${USERDATABACKUP_SUBJECT=userdata}
 : ${USERDATABACKUP_DEFAULT_STORAGE_QUOTA=512G}
 : ${USERDATABACKUP_FRESH_BACKUP_INTERVAL=14d}
@@ -15,7 +15,7 @@ readonly borgmaticPassphraseFilespec=~/.config/borgmatic/passphrase
 readonly excludesTemplateFilespec="${etcDir}/excludes"
 readonly excludesFilespec=~/.config/borgmatic/excludes
 readonly borgExcludesFilespec=~/.config/borgmatic/borg-excludes
-readonly userdataBackupLogFilespecGlob="${BORGMATIC_CREATE_LOG_DIRSPEC}/${USERDATABACKUP_SUBJECT}-*"
+readonly userdataBackupLogFilespecGlob="${BORGMATIC_LOG_DIRSPEC}/${USERDATABACKUP_SUBJECT}-*"
 
 printUsage()
 {

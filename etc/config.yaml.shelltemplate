@@ -9,7 +9,7 @@ source_directories:
 # repositories are backed up to in sequence. See ssh_command for SSH options like
 # identity file or port.
 repositories:
-    - path: ssh://backup@synology/./$(readableHostname --fallback "${USER-system}")/${USER:?}
+    - path: ssh://backup@synology/./$(readableHostname --fallback "${USER}-system")/${USER:?}
 
 # Stay in same file system (do not cross mount points). Defaults to false.
 # one_file_system: true

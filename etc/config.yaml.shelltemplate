@@ -217,10 +217,14 @@ keep_monthly: 6
 # Number of yearly archives to keep.
 keep_yearly: 1
 
-# When pruning, only consider archive names starting with this prefix.
-# Borg placeholders can be used. See the output of "borg help placeholders" for
-# details. Defaults to "{hostname}-". Use an empty value to disable the default.
-prefix: 'userdata-'
+# A Borg pattern for filtering down the archives used by borgmatic
+# actions that operate on multiple archives. For Borg 1.x, use a shell
+# pattern here and see the output of "borg help placeholders" for
+# details. For Borg 2.x, see the output of "borg help match-archives".
+# If match_archives is not specified, borgmatic defaults to deriving
+# the match_archives value from archive_name_format.
+# match_archives: sh:{hostname}-*
+match_archives: 'userdata-*'
 
 # Consistency checks to run after backups. See
 # https://borgbackup.readthedocs.org/en/stable/usage.html#borg-check and

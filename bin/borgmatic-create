@@ -75,17 +75,22 @@ marker --update lastBackup
 
 # Enable output verbosity for backup creation to list each backed up file.
 logFilePrefix="${BORGMATIC_CREATE_LOG_PREFIX:-$BORGMATIC_SUBJECT}"
+typeset -a notifyArgs=()
+logFilespec="${BORGMATIC_LOG_DIRSPEC}/${logFilePrefix}${logFilePrefix:+-}$(timestamp --short)"
 if borgmatic create --verbosity 1 --files "$@" \
-    | borgmatic-creationLogger "${BORGMATIC_LOG_DIRSPEC}/${logFilePrefix}${logFilePrefix:+-}"
+    | borgmatic-creationLogger "$logFilespec"
 then
+    status=0
     marker --update lastGoodBackup --increment-context
-
-    currentBackupDuration="$(marker --diff lastBackup --format '%P')"
-    notify --timeout 10 -- "Backup finished${currentBackupDuration:+; took }${currentBackupDuration}."
-    exit 0
+    message='Backup finished'
+    notifyArgs=(--timeout 10)
 else
     status=$?
-    currentBackupDuration="$(marker --diff lastBackup --format '%P')"
-    notify -- "Backup failed${currentBackupDuration:+ after }${currentBackupDuration}."
-    exit $status
+    message='Backup failed'
 fi
+
+currentBackupDuration="$(marker --diff lastBackup --format '%P')"
+message+="${currentBackupDuration:+ after }${currentBackupDuration}."
+notify "${notifyArgs[@]}" -- "$message"
+printf '%s\n' "$message" >> "$logFilespec"
+exit $status

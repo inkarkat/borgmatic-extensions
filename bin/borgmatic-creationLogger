@@ -26,3 +26,5 @@ tee "$logFilespec" \
 	--keep-reset \
 	--count file --match '^[A-Z] ' \
 	--transform-exec truncatePath --width $((${COLUMNS:-80} - 14)) \;   # Account for the " (file 42)" suffix.
+status=${PIPESTATUS[0]}
+exit $status

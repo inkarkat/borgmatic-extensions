@@ -24,7 +24,7 @@ if [ -n "$BORGMATIC_SUBJECT" ]; then
 	offer()
 	{
 	    local lastBackupTimestamp
-	    if lastBackupTimestamp="$(! marker --query lastGoodBackup --within "$BORGMATIC_OFFER_FRESH_BACKUP_INTERVAL" --get-time '' --get-diff '(%R)' | joinBy - ' ')"; then
+	    if lastBackupTimestamp="$(! EXECUTIONMARKER_OUTPUT_SEPARATOR=' ' marker --query lastGoodBackup --newer "$BORGMATIC_OFFER_FRESH_BACKUP_INTERVAL" --get-time '' --get-diff --output precise --prefix '(' --suffix ')' --long-units)"; then
 		local oldBackupMessage="Last backup of ${BORGMATIC_WHAT:-${BORGMATIC_SUBJECT:?}} ${lastBackupTimestamp:+was on }${lastBackupTimestamp:-has never been done}"
 		if ! haveHomeNetwork; then
 		    notify --timeout 10 -- "${oldBackupMessage}; I recommend to backup the next time you're connected to the home network again."
@@ -89,7 +89,7 @@ else
     message='Backup failed'
 fi
 
-currentBackupDuration="$(marker --diff lastBackup --format '%P')"
+currentBackupDuration="$(marker --diff lastBackup --output precise --no-direction --long-units)"
 message+="${currentBackupDuration:+ after }${currentBackupDuration}."
 notify "${notifyArgs[@]}" -- "$message"
 printf '%s\n' "$message" >> "$logFilespec"

@@ -42,11 +42,5 @@ elif [ ! -d "$destination" ] && [[ ! "$destination" =~ : ]]; then
     destination+=':'
 fi >&2
 
-rsyncWrapper()
-{
-    local DEBUGPREFIX=; case ",${DEBUG:-}," in *,rsync,*) DEBUGPREFIX=verbose;; *,rsync\!,*) DEBUGPREFIX=echotrace;; esac
-    $DEBUGPREFIX rsyncWithoutLoggedDirs "$@"
-}
-
 readonly homeDirspec="${HOME:?}"
-rsyncWrapper --verbose --archive "${rsyncArgs[@]}" --exclude-from "${etcDir}/excludes" "${homeDirspec%/}/" "$destination"
+${DEBUG:+debugcommand --for rsync --} rsyncWithoutLoggedDirs --verbose --archive "${rsyncArgs[@]}" --exclude-from "${etcDir}/excludes" "${homeDirspec%/}/" "$destination"
